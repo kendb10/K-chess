@@ -14,3 +14,4 @@
 https://www.chess.com/analysis/collection/outdoorsyjay4722-2W595EG3x/3CXLYdHpmU/games
 https://www.chess.com/analysis/collection/outdoorsyjay4722-2W595EG3x/2HXpFxyZV8/games
 
+API: application programming interface

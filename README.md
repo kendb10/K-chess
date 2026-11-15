@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# K-Chess
 
-## Getting Started
+My personal chess study blog — log games from Chess.com, review them move by move on an
+interactive board, and attach notes to specific positions.
 
-First, run the development server:
+## Tech stack
+
+- [Next.js 13](https://nextjs.org/) (App Router) + TypeScript + Tailwind CSS
+- [Prisma](https://www.prisma.io/) + SQLite for storage
+- [chess.js](https://github.com/jhlywa/chess.js) for PGN parsing
+- [react-chessboard](https://github.com/Clariity/react-chessboard) for the interactive board
+
+> **Node version note:** this project is pinned to Next.js 13.5.x and Prisma 5.x because the
+> dev machine runs Node 18.14, which is below the minimum required by current Next.js/Prisma
+> releases (Node 18.17+ / 20+). If you upgrade Node, consider upgrading these dependencies too.
+
+## Getting started
 
 ```bash
+npm install
+npx prisma migrate dev   # creates/updates prisma/dev.db
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Data model
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- **Game**: date, opponent, result (WIN/LOSS/DRAW), optional score, color played, full PGN,
+  optional time control.
+- **Memo**: a note attached to a specific ply (half-move) of a game.
 
-## Learn More
+## Adding a game
 
-To learn more about Next.js, take a look at the following resources:
+Go to **+ New Game**, paste a PGN exported from Chess.com, pick which color you played, and the
+form will prefill the date/opponent/result from the PGN headers (all fields stay editable before
+saving).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Useful commands
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- `npm run dev` — start the dev server
+- `npm run build` / `npm start` — production build & run
+- `npm run lint` — ESLint
+- `npx tsc --noEmit` — typecheck
+- `npx prisma studio` — browse/edit the SQLite database visually
+- `npx prisma migrate dev --name <name>` — create a new migration after editing
+  `prisma/schema.prisma`
