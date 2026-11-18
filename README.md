@@ -37,6 +37,19 @@ Go to **+ New Game**, paste a PGN exported from Chess.com, pick which color you 
 form will prefill the date/opponent/result from the PGN headers (all fields stay editable before
 saving).
 
+## Auth
+
+Anyone can browse games, but adding/editing/deleting games and memos requires logging in at
+`/login` with a single shared password (`ADMIN_PASSWORD` env var). A successful login sets a
+signed, httpOnly session cookie (`lib/auth.ts`) that's checked:
+
+- server-side, before rendering `/new` (redirects to `/login` otherwise)
+- server-side, before rendering edit controls on the game detail page
+- in every mutating API route (`POST`/`DELETE` under `/api/games` and `/api/memos`)
+
+To change the password or force everyone to log in again, update `ADMIN_PASSWORD` and/or
+`SESSION_SECRET` locally (`.env`) and in Vercel's env vars, then redeploy.
+
 ## Useful commands
 
 - `npm run dev` — start the dev server
