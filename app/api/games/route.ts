@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isGameResult, isPlayerColor } from "@/lib/types";
 import { parsePgn, PgnParseError } from "@/lib/pgn";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET() {
   const games = await prisma.game.findMany({
@@ -19,6 +20,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authError = requireAuth(req);
+  if (authError) return authError;
+
   const body = await req.json().catch(() => null);
   if (!body || typeof body.pgn !== "string") {
     return NextResponse.json({ error: "Missing PGN." }, { status: 400 });

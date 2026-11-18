@@ -18,9 +18,16 @@ interface GameViewerProps {
   pgn: string;
   playedAs: PlayerColor;
   initialMemos: Memo[];
+  canEdit: boolean;
 }
 
-export default function GameViewer({ gameId, pgn, playedAs, initialMemos }: GameViewerProps) {
+export default function GameViewer({
+  gameId,
+  pgn,
+  playedAs,
+  initialMemos,
+  canEdit,
+}: GameViewerProps) {
   const { moves, positions } = useMemo(() => {
     const chess = new Chess();
     chess.loadPgn(pgn);
@@ -37,6 +44,14 @@ export default function GameViewer({ gameId, pgn, playedAs, initialMemos }: Game
   const { ref: boardContainerRef, width: boardWidth } = useElementWidth<HTMLDivElement>(480);
 
   const goTo = (p: number) => setPly(Math.max(0, Math.min(positions.length - 1, p)));
+
+  // Highlight the squares of the move that led to the current position.
+  const lastMoveSquareStyles = useMemo(() => {
+    const lastMove = moves[ply - 1];
+    if (!lastMove) return {};
+    const highlight = { backgroundColor: "rgba(250, 204, 21, 0.4)" };
+    return { [lastMove.from]: highlight, [lastMove.to]: highlight };
+  }, [moves, ply]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -84,6 +99,7 @@ export default function GameViewer({ gameId, pgn, playedAs, initialMemos }: Game
             boardWidth={boardWidth}
             boardOrientation={playedAs === "WHITE" ? "white" : "black"}
             arePiecesDraggable={false}
+            customSquareStyles={lastMoveSquareStyles}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -126,34 +142,38 @@ export default function GameViewer({ gameId, pgn, playedAs, initialMemos }: Game
                 className="flex items-start justify-between gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm"
               >
                 <p className="whitespace-pre-wrap">{memo.text}</p>
-                <button
-                  onClick={() => handleDeleteMemo(memo.id)}
-                  className="flex-shrink-0 text-xs text-slate-400 hover:text-rose-600"
-                  aria-label="Delete memo"
-                >
-                  ✕
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={() => handleDeleteMemo(memo.id)}
+                    className="flex-shrink-0 text-xs text-slate-400 hover:text-rose-600"
+                    aria-label="Delete memo"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             ))}
             {currentMemos.length === 0 && (
               <p className="text-sm text-slate-400">No memo for this position yet.</p>
             )}
-            <form onSubmit={handleAddMemo} className="flex flex-col gap-2">
-              <textarea
-                value={memoText}
-                onChange={(e) => setMemoText(e.target.value)}
-                placeholder="Add a note about this position..."
-                rows={3}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={submitting || !memoText.trim()}
-                className="self-start rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-40"
-              >
-                Add memo
-              </button>
-            </form>
+            {canEdit && (
+              <form onSubmit={handleAddMemo} className="flex flex-col gap-2">
+                <textarea
+                  value={memoText}
+                  onChange={(e) => setMemoText(e.target.value)}
+                  placeholder="Add a note about this position..."
+                  rows={3}
+                  className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting || !memoText.trim()}
+                  className="self-start rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-40"
+                >
+                  Add memo
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const authError = requireAuth(req);
+  if (authError) return authError;
+
   const body = await req.json().catch(() => null);
   if (!body || typeof body.text !== "string" || !body.text.trim()) {
     return NextResponse.json({ error: "Memo text is required." }, { status: 400 });
